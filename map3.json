@@ -1,83 +1,88 @@
 {
-    "playerLoc": "room1",
-    "monsterLoc": "room4",
-    "gameOver": false,
-    "map": {
-      "room1": {
-        "north": "room5",
-        "message": "You hear nothing. Your options are to move north."
-      },
-      "room2": {
-        "north": "room6",
-        "message": "You hear nothing. Your options are to move north."
-      },
-      "room3": {
-        "north": "room7",
-        "message": "You hear a loud roar. Your options are to move north. "
-      },
-      "room4": {
-        "message": "You found the monster (and died)! GAME OVER!"
-      },
-      "room5": {
-        "north": "room9",
-        "east": "room6",
-        "south": "room1",
-        "message": "You hear nothing. Your options are to move north, east or south."
-      },
-      "room6": {
-        "north": "room10",
-        "east": "room7",
-        "south": "room2",
-        "message": "You hear nothing. Your options are to move north, east or south."
-      },
-      "room7": {
-        "south": "room3",
-        "message": "You hear a roar off in the distance. Your options are to move south."
-      },
-      "room8": {
-        "north": "room12",
-        "message": "You hear a loud roar! Your options are to move north."
-      },
-      "room9": {
-        "south": "room5",
-        "message": "YOU WIN!"
-      },
-      "room10": {
-        "south": "room6",
-        "east": "room11",
-        "message": "You hear a roar off in the distance. Your options are to move south and east."
-      },
-      "room11": {
-        "west": "room10",
-        "east": "room12",
-        "north": "room15",
-        "message": "You hear nothing. Your options are to move west, east or north."
-      },
-      "room12": {
-        "south": "room8",
-        "west": "room12",
-        "message": "You hear a roar off in the distance. Your options are to move south or west."
-      },
-      "room13": {
-        "east": "room14",
-        "message": "You hear nothing. Your options are to move east."
-      },
-      "room14": {
-        "east": "room15",
-        "west": "room13",
-        "fireballScrolls": 1,
-        "message": "You hear nothing. Your options are to move east or west."
-      },
-      "room15": {
-        "east": "room16",
-        "west": "room14",
-        "message": "You hear nothing. Your option is to move east or west."
-      },
-      "room16": {
-        "west": "room15",
-        "south": "room12",
-        "fireballScrolls": 1,
-        "message": "You hear nothing. Your options are to move west or south.!"
-      }
+  "playerLoc": "room1",
+  "monsterLoc": "room4",
+  "gameOver": false,
+  "map": {
+    "room1": {
+      "north": "room5",
+      "east": "room2",
+      "message": "You hear nothing. Your options are to move north or east."
+    },
+    "room2": {
+      "west": "room1",
+      "east": "room3",
+      "message": "You hear nothing. Your options are to move west or east."
+    },
+    "room3": {
+      "north": "room7",
+      "east": "room4",
+      "west": "room2",
+      "message": "You hear a loud roar. Your options are to move north, west or east "
+    },
+    "room4": {
+      "message": "You found the monster (and died)! GAME OVER!"
+    },
+    "room5": {
+      "east": "room6",
+      "south": "room1",
+      "message": "You feel a gentle breeze~ Your options are to move east or south."
+    },
+    "room6": {
+      "east": "room7",
+      "west": "room5",
+      "message": "You hear nothing. Your options are to move east or west."
+    },
+    "room7": {
+      "west": "room6",
+      "south": "room3",
+      "east": "room8",
+      "north": "room11",
+      "message": "You hear nothing. Your options are to move west, south, east or north."
+    },
+    "room8": {
+      "west": "room7",
+      "north": "room12",
+      "south": "room4",
+      "message": "You hear a loud roar! Your options are to move west, north or south."
+    },
+    "room9": {
+      "message": "YOU WIN!"
+    },
+    "room10": {
+      "north": "room14",
+      "east": "room11",
+      "message": "You feel a gentle breeze~ Your options are to move north and east."
+    },
+    "room11": {
+      "west": "room10",
+      "east": "room12",
+      "south": "room7",
+      "message": "You hear nothing. Your options are to move west, east or south."
+    },
+    "room12": {
+      "south": "room8",
+      "west": "room11",
+      "north": "room16",
+      "message": "You hear nothing. Your options are to move south, west or north."
+    },
+    "room13": {
+      "east": "room14",
+      "south": "room9",
+      "message": "You feel a gentle breeze~ Your options are to move east or south."
+    },
+    "room14": {
+      "east": "room15",
+      "west": "room13",
+      "south": "room10",
+      "message": "You hear nothing. Your options are to move east, west or south."
+    },
+    "room15": {
+      "west": "room14",
+      "message": "You hear nothing. Your option is to move west."
+    },
+    "room16": {
+      "south": "room12",
+      "message": "You hear nothing. Your options are to move south."
+    }
     }
   }
