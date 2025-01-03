@@ -26,13 +26,63 @@ function verifyToken(req, res, next) {
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(' ')[1];
 
-  if (token == null) return res.sendStatus(401);
+  if (!token) return res.sendStatus(401); // Unauthorized if no token
 
   jwt.verify(token, "hurufasepuluhkali", (err, decoded) => {
-    if (err) return res.sendStatus(403);
-    req.identity = decoded;
+    if (err) return res.sendStatus(403); // Forbidden if token invalid
+    req.identity = decoded; // Attach the decoded token for further use
     next();
   });
+}
+
+// Middleware to verify if the user is admin
+function verifyAdmin(req, res, next) {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1]; // Extract token
+
+  if (!token) return res.sendStatus(401); // Unauthorized if no token
+
+  jwt.verify(token, "hurufasepuluhkali", (err, decoded) => {
+    if (err) return res.sendStatus(403); // Forbidden if token invalid
+    if (decoded.username !== "admin") {
+      return res.status(403).send("Access restricted to admin only.");
+    }
+    next(); // Proceed if the user is admin
+  });
+}
+
+// Initialize admin user if not already in the database
+async function initializeAdmin() {
+  const adminUsername = "admin";
+  const adminPassword = "admin"; // Default admin password
+  const hashedPassword = bcrypt.hashSync(adminPassword, 15);
+
+  const existingAdmin = await client.db("user").collection("userdetail").findOne({ username: adminUsername });
+
+  if (!existingAdmin) {
+    await client.db("user").collection("userdetail").insertOne({
+      username: adminUsername,
+      password: hashedPassword,
+      name: "Administrator",
+      email: "admin@example.com",
+    });
+    console.log("Admin user initialized.");
+  } else {
+    console.log("Admin user already exists.");
+  }
+}
+
+async function run() {
+  try {
+    await client.connect();
+    await client.db("admin").command({ ping: 1 });
+    console.log("Connected to MongoDB!");
+
+    // Initialize the admin user
+    await initializeAdmin();
+  } catch (err) {
+    console.error("Error connecting to MongoDB:", err);
+  }
 }
 
 // User registration with duplicate username prevention
@@ -48,9 +98,7 @@ app.post('/user', async (req, res) => {
     // Check if username already exists
     const existingUser = await client.db("user").collection("userdetail").findOne({ username });
     if (existingUser) {
-      return res
-        .status(400)
-        .send("Username already exists. Please choose a different username.");
+      return res.status(400).send("Username already exists. Please choose a different username.");
     }
 
     // Hash the password
@@ -67,7 +115,6 @@ app.post('/user', async (req, res) => {
     res.status(201).send("User registered successfully.");
   } catch (error) {
     if (error.code === 11000) {
-      // Handle duplicate key error
       res.status(400).send("Username already exists. Please choose a different username.");
     } else {
       console.error("Error during registration:", error);
@@ -113,32 +160,49 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Get user profile
-app.get('/user/:id', verifyToken, async (req, res) => {
-  if (req.identity._id != req.params.id) {
-    res.status(401).send('Unauthorized Access');
-  } else {
-    let result = await client.db("user").collection("userdetail").findOne({
+// Get user profile (Admin Only)
+app.get('/user/:id', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const user = await client.db("user").collection("userdetail").findOne({
       _id: new ObjectId(req.params.id),
     });
-    res.send(result);
+
+    if (!user) {
+      return res.status(404).send("User not found.");
+    }
+
+    res.send(user);
+  } catch (err) {
+    console.error("Error fetching user:", err);
+    res.status(500).send("Internal server error.");
   }
 });
 
-// Delete user account
-app.delete('/user/:id', verifyToken, async (req, res) => {
-  let result = await client.db("user").collection("userdetail").deleteOne({
-    _id: new ObjectId(req.params.id),
-  });
-  res.send(result);
+// Delete user account (Admin Only)
+app.delete('/user/:id', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const result = await client.db("user").collection("userdetail").deleteOne({
+      _id: new ObjectId(req.params.id),
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).send("User not found.");
+    }
+
+    res.send("User deleted successfully.");
+  } catch (err) {
+    console.error("Error deleting user:", err);
+    res.status(500).send("Internal server error.");
+  }
 });
 
-// Buy endpoint
-app.post('/buy', async (req, res) => {
-  const token = req.headers.authorization.split(" ")[1];
-  var decoded = jwt.verify(token, 'mysupersecretpasskey');
-  console.log(decoded);
+// Start server
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
 });
+
+// Connect to MongoDB
+run().catch(console.dir);
 
 // Choose map
 app.post('/choose-map', (req, res) => {
@@ -190,21 +254,3 @@ app.patch('/move', (req, res) => {
 
   res.send(`You moved ${direction}. ${nextRoomMessage}`);
 });
-
-// Start server
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
-
-// Connect to MongoDB
-async function run() {
-  try {
-    await client.connect();
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
-  }
-}
-run().catch(console.dir);
